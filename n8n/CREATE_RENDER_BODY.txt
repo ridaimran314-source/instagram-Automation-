@@ -1,0 +1,15 @@
+# Create Render — Body settings (copy exactly)
+
+Body Content Type: JSON
+(NOT Raw)
+
+Then in the JSON / Body field paste ONLY:
+
+={{ JSON.parse($json.render_body) }}
+
+If your n8n version has no "JSON" option and only Raw, use Raw + application/json and paste ONLY:
+
+={{ $json.render_body }}
+
+Important: it must start with ={{
+Not {{ without the equals sign.

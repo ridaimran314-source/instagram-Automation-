@@ -1,0 +1,8 @@
+__pycache__/
+.venv/
+renders/
+smoke_tmp/
+smoke_renders/
+tmp/
+.env
+*.pyc

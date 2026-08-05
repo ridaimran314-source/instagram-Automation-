@@ -1,0 +1,32 @@
+# Create Render — use Form Urlencoded (same as IG Create Container)
+
+1. Body Content Type: Form Urlencoded  (NOT Raw, NOT JSON)
+2. Remove any manual Content-Type header if present
+3. Add these Body Parameters:
+
+name: video_url
+value: ={{ $json.video_url }}
+
+name: video_urls
+value: ={{ JSON.stringify($json.video_urls || [$json.video_url]) }}
+
+name: music_url
+value: ={{ $json.music_url }}
+
+name: hook
+value: ={{ $json.hook }}
+
+name: script
+value: ={{ $json.script }}
+
+name: cta
+value: ={{ $json.cta }}
+
+name: duration_seconds
+value: ={{ $json.duration_seconds || 12 }}
+
+name: music_volume
+value: ={{ $json.music_volume || 0.38 }}
+
+4. Timeout: 300000
+5. Execute step

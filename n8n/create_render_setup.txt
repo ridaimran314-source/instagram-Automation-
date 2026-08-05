@@ -1,0 +1,21 @@
+# Create Render — do NOT paste JS here
+
+URL:
+https://api.creatomate.com/v2/renders
+
+Send Body: ON
+Body Content Type: JSON
+Specify Body: Using Fields Below
+
+Add 3 fields:
+
+1) Name: template_id
+   Value: ={{ $json.template_id }}
+
+2) Name: render_scale
+   Value: ={{ $json.render_scale }}
+
+3) Name: modifications
+   Value: ={{ $json.modifications }}
+
+Remove any Raw body / big JSON text box content.

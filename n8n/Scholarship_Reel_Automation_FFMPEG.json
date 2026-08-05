@@ -1,0 +1,1421 @@
+{
+  "name": "Scholarship Reel Automation FFmpeg HD",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "24b85f86-5bb8-49c4-a9fa-7ca458825896",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ig",
+              "name": "ig_user_id",
+              "value": "17841475596000955",
+              "type": "string"
+            },
+            {
+              "id": "ffmpeg_url",
+              "name": "ffmpeg_api_url",
+              "value": "https://YOUR-FFMPEG-SERVICE.up.railway.app",
+              "type": "string"
+            },
+            {
+              "id": "98909553-0939-4a0a-adc5-f4d866d56253",
+              "name": "page_token",
+              "value": "EAApDyTgJi9EBSEKDdXxppEykUYuacwG7OWeZBlLN6kcEqe1swUbyPzFVG0cZAq3ID4LE91fIZClehQSn0x78KFUQNXefrLp6Uda3pkHq6YsQrsgJIeZCAy3Qtu5r72vAc5UdJovuQVNtffvWNDZBQlmJjNDgVUyOupco9A1HZBxijClWd5mrpw4lgZBhfCm",
+              "type": "string"
+            },
+            {
+              "id": "ffmpeg_key",
+              "name": "ffmpeg_api_key",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "92a769cc-6268-42e2-9a0f-c5068761e1eb",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1HlvVja0zJH5HVNiPtgWsTWnePTq_xkoe1a6PsGvutBU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "Pending"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "64689ac3-c0f5-4709-b4e5-0d870c50a461",
+      "name": "Get Pending Scholarship",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        448,
+        464
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6W9K8YGtfVp6iXBR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json['Scholarship Name'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "89d49258-0049-4771-889f-da4032085735",
+      "name": "Row Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        464
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Write Instagram Reels copy from this Google Sheet row. Return JSON only.\nMatch high-retention scholarship Reel style (short bold progressive lines + strong CTA).\n\nOpportunity Name: {{ $json[\"Scholarship Name\"] }}\nCountry: {{ $json[\"Host Country\"] }}\nDegree Level: {{ $json[\"Degree Type\"] }}\nBenefits / Scholarship Type: {{ $json[\"Scholarship Type\"] }}\nDeadline: {{ $json[\"Deadline\"] }}\nField of Study: {{ $json[\"Field of Study\"] }}\nExtra Information / Org / Bio source: {{ $json[\"Extra Information\"] || $json[\"Extra Info\"] || $json[\"Organization\"] || $json[\"Bio\"] || \"\" }}\nApplication Link: {{ $json[\"Application Link\"] || $json[\"Link\"] || \"\" }}\nWho Can Apply: {{ $json[\"Who Can Apply\"] || $json[\"Eligibility\"] || \"\" }}\nUniversity: {{ $json[\"University\"] || \"\" }}"
+            },
+            {
+              "role": "system",
+              "content": "=You are an expert short-form Instagram Reels writer for Pakistani students hunting scholarships, fellowships, internships, and fully funded study abroad opportunities.\n\nStyle goal: match high-retention scholarship Reels like the reference style (fast cuts of short bold lines, progressive reveals, curiosity → payoff → CTA). Keep it factual — never invent.\n\n--------------------------------------------------\n\n# HARD RULES\n\n* Only use facts from the sheet row.\n* If a field is empty, skip it — never invent IELTS, stipend, flights, fees, etc.\n* On-screen lines: max 6–8 words. One idea per scene.\n* Energetic, clear, student-friendly English. Not clickbait. Not misleading.\n* Prefer concrete benefits: Fully Funded, Monthly Stipend, No IELTS, Free Tuition, Deadline date.\n\n--------------------------------------------------\n\n# ON-SCREEN FLOW (exact order — skip missing data)\n\n1. Who it's for — \"For Bachelor's Students\" / \"For Master's & PhD\"\n2. Shock hook — strongest rare benefit or country+funding combo\n3. Money / funding details — tuition, stipend, living costs (only if in source)\n4. Extra eligibility wins — no IELTS, open to Pakistanis, field, etc. (only if in source)\n5. Deadline — \"Deadline: 1 Sep 2026\" (only if in source)\n6. CTA — pick one:\n   - \"Save this before you forget!\"\n   - \"Tag a friend who needs this!\"\n   - \"Follow for more scholarships\"\n   - \"Apply before the deadline!\"\n\nReveal value step-by-step so people keep watching (like polished scholarship Reels).\n\n--------------------------------------------------\n\n# SCENE WRITING\n\n* 5–7 scenes total.\n* Scene 1 = who.\n* Scene 2 = biggest hook (not a weak generic line).\n* Bad hook: \"Scholarship opportunity awaits\"\n* Good hook: \"Fully Funded Study in the UK\"\n* Last scene = CTA only.\n* Optional: 1 emoji max per scene.\n\n--------------------------------------------------\n\n# INSTAGRAM CAPTION (post text)\n\nWrite a caption students will actually read:\n\n1. Hook line (1 sentence)\n2. Who + where + what (2–3 short lines)\n3. Bullet-style benefits (only verified)\n4. Deadline if available\n5. Soft CTA (Save / Tag / Follow / Apply)\n6. Hashtags separately in array\n\nMax ~160 words. Short paragraphs / line breaks. No fluff.\n\n--------------------------------------------------\n\n# PROFILE BIO (from sheet)\n\nBuild `profile_bio` using organization / page info from the sheet when present\n(Extra Information, org name, page purpose, etc.).\n\nRequirements:\n* Max 150 characters\n* Clear value for Pakistani students\n* One promise (daily scholarships / fully funded updates)\n* Optional 1–2 emojis\n\nIf org details missing, use:\n\"Daily fully funded scholarships for Pakistani students. Study abroad updates.\"\n\nDo NOT invent fake organization names.\n\n--------------------------------------------------\n\n# OUTPUT — JSON ONLY (no markdown)\n\n{\n  \"audience_line\": \"For Bachelor's & Master's Students\",\n  \"headline\": \"Fully Funded in the UK\",\n  \"hook\": \"Fully Funded Study in the UK\",\n  \"video_scenes\": [\n    { \"scene\": 1, \"text\": \"For Bachelor's & Master's\" },\n    { \"scene\": 2, \"text\": \"Fully Funded in the UK\" },\n    { \"scene\": 3, \"text\": \"Tuition Covered\" },\n    { \"scene\": 4, \"text\": \"Deadline: 1 Sep 2026\" },\n    { \"scene\": 5, \"text\": \"Tag a friend who needs this!\" }\n  ],\n  \"script\": \"Fully Funded in the UK\",\n  \"cta\": \"Tag a friend who needs this!\",\n  \"caption\": \"\",\n  \"hashtags\": [\"#Scholarship\", \"#StudyAbroad\", \"#FullyFunded\", \"#PakistaniStudents\", \"#UKScholarship\"],\n  \"profile_bio\": \"Daily fully funded scholarships for Pakistani students.\",\n  \"thumbnail_text\": \"Fully Funded\",\n  \"voiceoverScript\": \"1–2 short spoken sentences from verified facts only.\"\n}\n\nMapping:\n* audience_line / scene 1 → on-video who\n* hook / scene 2 → on-video main benefit\n* cta / last scene → on-video CTA\n* caption + hashtags → Instagram caption\n* profile_bio → include at end of caption block when posting\n\n--------------------------------------------------"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {
+          "instructions": "Expert Instagram Reels writer for Pakistani students. Reference-style short bold progressive lines. Never invent facts. Scene1=who, Scene2=strongest benefit, last=CTA. Build profile_bio from sheet Extra Information/Organization/Bio when present.",
+          "maxTokens": 800,
+          "textFormat": {
+            "textOptions": {
+              "type": "json_schema",
+              "name": "reel_content",
+              "schema": "{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"audience_line\",\"hook\",\"video_scenes\",\"script\",\"cta\",\"caption\",\"hashtags\",\"voiceoverScript\"],\"properties\":{\"audience_line\":{\"type\":\"string\"},\"headline\":{\"type\":\"string\"},\"hook\":{\"type\":\"string\"},\"video_scenes\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"additionalProperties\":false,\"required\":[\"scene\",\"text\"],\"properties\":{\"scene\":{\"type\":\"number\"},\"text\":{\"type\":\"string\"}}}},\"script\":{\"type\":\"string\"},\"cta\":{\"type\":\"string\"},\"caption\":{\"type\":\"string\"},\"hashtags\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"profile_bio\":{\"type\":\"string\"},\"thumbnail_text\":{\"type\":\"string\"},\"voiceoverScript\":{\"type\":\"string\"}}}",
+              "strict": true
+            }
+          }
+        }
+      },
+      "id": "55dc6320-b9d3-4c2f-9f31-fc763793fbfa",
+      "name": "AI Content",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        368
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "n8n credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": "={{ $('Get Pending Scholarship').item.json['Host Country'] }}",
+        "limit": 1,
+        "filter": {
+          "whatToSearch": "folders"
+        },
+        "options": {
+          "fields": [
+            "id",
+            "name"
+          ]
+        }
+      },
+      "id": "c98cdb98-eaf4-4b88-aa1b-e1b8ec389743",
+      "name": "Find Country Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1248,
+        368
+      ],
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0ZGjoUFWI1jpBDz6",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f1",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ff765ecb-d25e-4041-b800-78ef9c0af37e",
+      "name": "Folder Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1472,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "={{ \"'\" + $('Find Country Folder').item.json.id + \"' in parents and mimeType contains 'video' and trashed = false\" }}",
+        "returnAll": true,
+        "filter": {},
+        "options": {
+          "fields": [
+            "id",
+            "name"
+          ]
+        }
+      },
+      "id": "5169ef0b-3cce-4d78-99c4-cc9aa9ac829b",
+      "name": "List Country Clips",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1696,
+        288
+      ],
+      "retryOnFail": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0ZGjoUFWI1jpBDz6",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const clips = $input.all().filter((i) => i.json && i.json.id);\nif (clips.length === 0) {\n  return [{ json: { hasVideo: false } }];\n}\n\nconst shuffled = clips\n  .map((c) => c.json)\n  .sort(() => Math.random() - 0.5);\n\nconst unique = [];\nconst seen = new Set();\nfor (const clip of shuffled) {\n  if (seen.has(clip.id)) continue;\n  seen.add(clip.id);\n  unique.push(clip);\n  if (unique.length >= 6) break;\n}\n\nconst target = Math.max(3, Math.min(6, unique.length || 3));\nconst picks = [];\nwhile (picks.length < target) {\n  picks.push(unique[picks.length % unique.length]);\n}\n\nconst videoUrls = picks.map(\n  (p) => `https://drive.google.com/uc?export=download&confirm=t&id=${p.id}`\n);\n\nreturn [{\n  json: {\n    hasVideo: true,\n    videoUrl: videoUrls[0],\n    videoUrls,\n    fileIds: picks.map((p) => p.id),\n    fileNames: picks.map((p) => p.name),\n    clipCount: unique.length,\n    uniqueClipCount: unique.length,\n    needsMoreClips: unique.length < 3,\n  },\n}];\n"
+      },
+      "id": "bd39adf0-0c52-463d-8995-a045b25942a0",
+      "name": "Select Random Clip",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "v1",
+              "leftValue": "={{ $json.hasVideo }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "27842d9f-9a6f-4733-9e24-c9bfd97933ff",
+      "name": "Has Video?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2144,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "input": "={{\n(() => {\n  let raw =\n    $('AI Content').item.json.output?.[0]?.content?.[0]?.text\n    ?? $('AI Content').item.json.message?.content\n    ?? $('AI Content').item.json.text\n    ?? $('AI Content').item.json;\n\n  if (typeof raw === 'string') {\n    try { raw = JSON.parse(raw); } catch (e) { /* keep as string */ }\n  }\n\n  const ai = (raw && typeof raw === 'object') ? raw : {};\n  const scenes = Array.isArray(ai.video_scenes) ? ai.video_scenes : [];\n  const sceneLines = scenes\n    .map((s) => (s.text || '').toString().trim())\n    .filter(Boolean)\n    .slice(0, 3)\n    .join('. ');\n\n  const vo = (\n    ai.voiceoverScript\n    || ai.voiceover_script\n    || ai.script\n    || ai.hook\n    || sceneLines\n    || (ai.caption || '').toString().split('\\n')[0]\n    || 'Scholarship details are in the caption. Follow for more opportunities.'\n  ).toString().trim();\n\n  return vo.slice(0, 400);\n})()\n}}\n",
+        "voice": "nova",
+        "options": {
+          "response_format": "mp3",
+          "binaryPropertyOutput": "data"
+        }
+      },
+      "id": "5730872b-5b8b-4771-b7ca-9dc1f6c2c5dd",
+      "name": "Generate Voiceover",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        2368,
+        240
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "n8n credits",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "={{ 'voiceover_' + $('Get Pending Scholarship').item.json['Scholarship Name'] + '.mp3' }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "a9f185b7-37d8-472d-900e-fa2fdd740b5a",
+      "name": "Upload Voiceover",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2592,
+        240
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0ZGjoUFWI1jpBDz6",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Upload Voiceover').item.json.id }}"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "id": "d0f5db46-623b-4e7a-90d7-42d626bbc229",
+      "name": "Share Voiceover",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2816,
+        240
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0ZGjoUFWI1jpBDz6",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "queryString": ".mp3",
+        "returnAll": true,
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1-nII9lBPkON1S5S-FnH9yFCklbw-Lqr8",
+            "mode": "list",
+            "cachedResultName": "Music",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1-nII9lBPkON1S5S-FnH9yFCklbw-Lqr8"
+          }
+        },
+        "options": {}
+      },
+      "id": "74774eae-9a75-486a-944f-fc753afc66d6",
+      "name": "List Music Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        3040,
+        240
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "0ZGjoUFWI1jpBDz6",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Select Random Music — put after List Music Files\nconst rows = (typeof $input !== 'undefined' && $input.all)\n  ? $input.all()\n  : (typeof items !== 'undefined' ? items : []);\n\nconst files = rows\n  .map((i) => i.json || i)\n  .filter((f) => {\n    if (!f || !f.id) return false;\n    const name = (f.name || '').toLowerCase();\n    const mime = (f.mimeType || f.mime_type || '').toLowerCase();\n    return (\n      name.endsWith('.mp3') ||\n      name.endsWith('.wav') ||\n      name.endsWith('.m4a') ||\n      name.endsWith('.aac') ||\n      mime.includes('audio')\n    );\n  });\n\nif (!files.length) {\n  throw new Error(\n    'No music files found in Drive Music folder. Add .mp3/.wav/.m4a files and make sure List Music Files points to the Music folder.'\n  );\n}\n\nconst pick = files[Math.floor(Math.random() * files.length)];\nconst musicUrl = `https://drive.google.com/uc?export=download&confirm=t&id=${pick.id}`;\n\nreturn [{\n  json: {\n    musicFileId: pick.id,\n    musicName: pick.name,\n    musicUrl,\n  },\n}];\n"
+      },
+      "id": "a791a58c-c637-4a16-b757-09ca0969fcc5",
+      "name": "Select Random Music",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3264,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ ($('Config').item.json.ffmpeg_api_url || '').replace(/\\/$/, '') + '/render' }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "={{ $('Config').item.json.ffmpeg_api_key ? 'Bearer ' + $('Config').item.json.ffmpeg_api_key : '' }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify({\n  video_url: $json.video_url,\n  video_urls: $json.video_urls || [$json.video_url],\n  music_url: $json.music_url,\n  hook: $json.hook,\n  script: $json.script,\n  cta: $json.cta,\n  duration_seconds: $json.duration_seconds || 12,\n  music_volume: $json.music_volume || 0.38\n}) }}",
+        "options": {
+          "timeout": 300000,
+          "response": {
+            "response": {
+              "neverError": false
+            }
+          }
+        }
+      },
+      "id": "e00aef9c-9a4f-4fd7-9428-cc0d94ac752e",
+      "name": "FFmpeg HD Render",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3696,
+        240
+      ],
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v21.0/17841475596000955/media",
+        "authentication": "none",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "={{ $('Config').item.json.page_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "media_type",
+              "value": "REELS"
+            },
+            {
+              "name": "video_url",
+              "value": "={{ $json.url }}"
+            },
+            {
+              "name": "caption",
+              "value": "={{ (() => { let ai = $('AI Content').item.json.output?.[0]?.content?.[0]?.text || $('AI Content').item.json; if (typeof ai === 'string') { try { ai = JSON.parse(ai); } catch (e) { ai = {}; } } const sheet = $('Get Pending Scholarship').item.json; const caption = (ai.caption || ai.hook || 'New scholarship opportunity').toString().trim(); const bio = (ai.profile_bio || sheet['Bio'] || sheet['Organization'] || sheet['Extra Information'] || '').toString().trim(); const tags = Array.isArray(ai.hashtags) ? ai.hashtags.join(' ') : ''; return [caption, bio ? ('\\n' + bio) : '', tags].filter(Boolean).join('\\n\\n'); })() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "605a00ab-75bb-4677-bbe2-5202bf2a4881",
+      "name": "IG Create Container",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        4592,
+        128
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "amount": 20
+      },
+      "id": "d0ac9a7d-b511-44e1-9f4a-b0b223e82376",
+      "name": "IG Wait",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4816,
+        128
+      ],
+      "webhookId": "3d151100-8f3c-436b-a9d9-0754e61190ff"
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://graph.facebook.com/v21.0/' + $('IG Create Container').item.json.id }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "status_code"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $('Config').item.json.page_token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4fdfc2dc-05c0-46c8-ac8c-eb994996a0d4",
+      "name": "IG Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        5040,
+        48
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ig1",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "36f752c5-0e5f-4146-9535-43ea6fa62d8e",
+      "name": "IG Finished?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        5264,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://graph.facebook.com/v21.0/' + $('Config').item.json.ig_user_id + '/media_publish' }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "creation_id",
+              "value": "={{ $('IG Create Container').item.json.id }}"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $('Config').item.json.page_token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a060f6d1-10dd-415a-8438-29135a9f6743",
+      "name": "IG Publish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        5488,
+        0
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://graph.facebook.com/v21.0/' + $('IG Publish').item.json.id }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "permalink"
+            },
+            {
+              "name": "access_token",
+              "value": "={{ $('Config').item.json.page_token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c117f26c-42d4-438b-bac7-aa64d4da7eb4",
+      "name": "IG Permalink",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        5712,
+        0
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1HlvVja0zJH5HVNiPtgWsTWnePTq_xkoe1a6PsGvutBU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Scholarship Name"
+          ],
+          "schema": [
+            {
+              "id": "Scholarship Name",
+              "displayName": "Scholarship Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Instagram URL",
+              "displayName": "Instagram URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Published Date",
+              "displayName": "Published Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ],
+          "value": {
+            "Scholarship Name": "={{ $('Get Pending Scholarship').item.json['Scholarship Name'] }}",
+            "Status": "Published",
+            "Instagram URL": "={{ $('IG Permalink').item.json.permalink }}",
+            "Published Date": "={{ $now.toISO() }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "197373a9-586b-4110-b9c0-9da1e37e7cac",
+      "name": "Mark Published",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5936,
+        0
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6W9K8YGtfVp6iXBR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ige",
+              "leftValue": "={{ $('IG Status').item.json.status_code }}",
+              "rightValue": "ERROR",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "da2b8862-7086-43cb-8897-794ca3afd368",
+      "name": "IG Error?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        5488,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1HlvVja0zJH5HVNiPtgWsTWnePTq_xkoe1a6PsGvutBU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Scholarship Name"
+          ],
+          "schema": [
+            {
+              "id": "Scholarship Name",
+              "displayName": "Scholarship Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Instagram URL",
+              "displayName": "Instagram URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Published Date",
+              "displayName": "Published Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ],
+          "value": {
+            "Scholarship Name": "={{ $('Get Pending Scholarship').item.json['Scholarship Name'] }}",
+            "Status": "Failed",
+            "Error": "={{ 'Instagram publishing error. status_code: ' + $('IG Status').item.json.status_code }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "440d8c79-0fd0-4e10-8970-671f52d81d10",
+      "name": "Mark Failed - Instagram",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5712,
+        224
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6W9K8YGtfVp6iXBR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1HlvVja0zJH5HVNiPtgWsTWnePTq_xkoe1a6PsGvutBU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Scholarship Name"
+          ],
+          "schema": [
+            {
+              "id": "Scholarship Name",
+              "displayName": "Scholarship Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Instagram URL",
+              "displayName": "Instagram URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Published Date",
+              "displayName": "Published Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ],
+          "value": {
+            "Scholarship Name": "={{ $('Get Pending Scholarship').item.json['Scholarship Name'] }}",
+            "Status": "Failed",
+            "Error": "={{ 'FFmpeg render failed. Check FFmpeg HD Render response / API logs.' }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "49b00290-d55e-44b0-a4cb-590f616910fa",
+      "name": "Mark Failed - Render",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4816,
+        336
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6W9K8YGtfVp6iXBR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1HlvVja0zJH5HVNiPtgWsTWnePTq_xkoe1a6PsGvutBU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Scholarship Name"
+          ],
+          "schema": [
+            {
+              "id": "Scholarship Name",
+              "displayName": "Scholarship Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Instagram URL",
+              "displayName": "Instagram URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Published Date",
+              "displayName": "Published Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Error",
+              "displayName": "Error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": false
+            }
+          ],
+          "value": {
+            "Scholarship Name": "={{ $('Get Pending Scholarship').item.json['Scholarship Name'] }}",
+            "Status": "Failed",
+            "Error": "={{ 'No background video found for country: ' + $('Get Pending Scholarship').item.json['Host Country'] }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "773a831a-4623-4238-b9c7-5a599a1baef5",
+      "name": "Mark Failed - No Video",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2368,
+        464
+      ],
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6W9K8YGtfVp6iXBR",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "80eb898e-8bf9-4c88-b083-ee503e9e9014",
+      "name": "No Pending Rows",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        960,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const musicUrl = (\n  $json.musicUrl ||\n  $json.music_url ||\n  ($('Select Random Music').item.json || {}).musicUrl ||\n  ($('Select Random Music').item.json || {}).music_url ||\n  ''\n).toString().trim();\n\nconst clipNode = $('Select Random Clip').item.json;\nconst sheet = $('Get Pending Scholarship').item.json;\n\nconst videoUrls = Array.isArray(clipNode.videoUrls) && clipNode.videoUrls.length\n  ? clipNode.videoUrls\n  : (clipNode.videoUrl ? [clipNode.videoUrl] : []);\n\nif (!musicUrl) {\n  throw new Error('No musicUrl. Check Drive Music folder has .mp3 files.');\n}\nif (!videoUrls.length) throw new Error('No videoUrls');\n\nlet ai = $('AI Content').item.json.output?.[0]?.content?.[0]?.text || $('AI Content').item.json;\nif (typeof ai === 'string') {\n  try { ai = JSON.parse(ai); } catch (e) { ai = {}; }\n}\n\nconst scenes = Array.isArray(ai.video_scenes) ? ai.video_scenes : [];\nconst sceneText = (n) => (scenes.find((s) => Number(s.scene) === n)?.text || '').toString().trim();\n\nconst clean = (v, max) => (v || '').toString().replace(/\\s+/g, ' ').trim().slice(0, max);\nconst dangling = new Set(['a','an','the','in','on','at','to','for','of','and','or','with','from']);\n\nconst completeLine = (v, max = 42) => {\n  let t = clean(v, max + 10);\n  if (!t) return '';\n  if (t.length > max) {\n    t = t.slice(0, max + 1);\n    if (t.includes(' ')) t = t.slice(0, t.lastIndexOf(' '));\n  }\n  let words = t.split(/\\s+/).filter(Boolean);\n  while (words.length && dangling.has(words[words.length - 1].toLowerCase().replace(/[.,!?]/g, ''))) {\n    words.pop();\n  }\n  return words.join(' ');\n};\n\nconst country = completeLine(sheet['Host Country'] || '', 28);\nconst university = completeLine(sheet['University'] || '', 40);\nconst degree = completeLine(sheet['Degree Type'] || '', 36);\nconst fieldRaw = clean(sheet['Field of Study'] || '', 60);\nconst fieldShort = completeLine((fieldRaw.split(/[,/|]/)[0] || fieldRaw), 30);\nconst deadline = completeLine(sheet['Deadline'] || '', 28);\nconst benefitRaw = completeLine(\n  sheet['Scholarship Type'] || ai.hook || sceneText(5) || '',\n  40\n);\n\nconst fromScenes = scenes\n  .map((s) => completeLine(s.text, 42))\n  .filter(Boolean);\n\n// Preferred structured slides (complete ideas)\nconst structured = [];\nstructured.push(\n  completeLine(\n    ai.hook || ai.headline || sceneText(1) || (country ? `Fully Funded Scholarships in ${country}` : 'Fully Funded Scholarships'),\n    42\n  )\n);\nif (university) structured.push(university);\nelse if (ai.university_line) structured.push(completeLine(ai.university_line, 40));\n\nif (degree) structured.push(degree);\nelse if (ai.audience_line) structured.push(completeLine(ai.audience_line, 36));\n\nif (fieldShort) structured.push(completeLine(ai.field_line || `Field: ${fieldShort}`, 40));\nelse if (ai.field_line) structured.push(completeLine(ai.field_line, 40));\n\nif (benefitRaw && !/fully funded/i.test(benefitRaw)) structured.push(benefitRaw);\nelse if (sceneText(5)) structured.push(completeLine(sceneText(5), 40));\n\nif (deadline) structured.push(completeLine(`Deadline: ${deadline}`, 40));\n\nconst cta = completeLine(ai.cta || sceneText(7) || sceneText(6) || 'Apply Now', 36) || 'Apply Now';\nstructured.push(cta);\n\n// Unique non-empty slides, max 6\nconst texts = [];\nconst seen = new Set();\nfor (const line of [...structured, ...fromScenes]) {\n  const key = (line || '').toLowerCase();\n  if (!line || seen.has(key)) continue;\n  if (dangling.has(key.split(/\\s+/).pop())) continue;\n  seen.add(key);\n  texts.push(line);\n  if (texts.length >= 6) break;\n}\nwhile (texts.length < 3) texts.push('Follow for more scholarships');\n\nconst uniqueUrls = [];\nfor (const u of videoUrls) {\n  if (u && !uniqueUrls.includes(u)) uniqueUrls.push(u);\n}\nwhile (uniqueUrls.length < texts.length && videoUrls.length) {\n  uniqueUrls.push(videoUrls[uniqueUrls.length % videoUrls.length]);\n}\n\nconst hook = texts[0];\nconst script = texts[Math.min(1, texts.length - 1)];\nconst ctaOut = texts[texts.length - 1];\nconst bio = clean(ai.bio || ai.profile_bio || '', 150);\n\nconst payload = {\n  video_url: uniqueUrls[0],\n  video_urls: uniqueUrls.slice(0, texts.length),\n  music_url: musicUrl,\n  texts,\n  hook,\n  script,\n  cta: ctaOut,\n  duration_seconds: Math.min(18, Math.max(12, texts.length * 2.5)),\n  music_volume: 0.38,\n};\n\nreturn [{\n  json: {\n    ...payload,\n    video_urls_text: payload.video_urls.join('\\n'),\n    render_body: JSON.stringify(payload),\n    profile_bio: bio,\n    caption: (ai.caption || '').toString().trim(),\n    hashtags: Array.isArray(ai.hashtags) ? ai.hashtags : [],\n    field_of_study: fieldShort,\n  },\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3472,
+        240
+      ],
+      "id": "17819ed1-91a0-4be1-928a-fc930a212f07",
+      "name": "Prepare FFmpeg Body"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Get Pending Scholarship",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pending Scholarship": {
+      "main": [
+        [
+          {
+            "node": "Row Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Row Exists?": {
+      "main": [
+        [
+          {
+            "node": "AI Content",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Pending Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Content": {
+      "main": [
+        [
+          {
+            "node": "Find Country Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Country Folder": {
+      "main": [
+        [
+          {
+            "node": "Folder Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Folder Found?": {
+      "main": [
+        [
+          {
+            "node": "List Country Clips",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Failed - No Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Country Clips": {
+      "main": [
+        [
+          {
+            "node": "Select Random Clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Random Clip": {
+      "main": [
+        [
+          {
+            "node": "Has Video?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Video?": {
+      "main": [
+        [
+          {
+            "node": "List Music Files",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Failed - No Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Voiceover": {
+      "main": [
+        [
+          {
+            "node": "Upload Voiceover",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Voiceover": {
+      "main": [
+        [
+          {
+            "node": "Share Voiceover",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Share Voiceover": {
+      "main": [
+        [
+          {
+            "node": "List Music Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Music Files": {
+      "main": [
+        [
+          {
+            "node": "Select Random Music",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Random Music": {
+      "main": [
+        [
+          {
+            "node": "Prepare FFmpeg Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FFmpeg HD Render": {
+      "main": [
+        [
+          {
+            "node": "IG Create Container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IG Create Container": {
+      "main": [
+        [
+          {
+            "node": "IG Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IG Wait": {
+      "main": [
+        [
+          {
+            "node": "IG Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IG Status": {
+      "main": [
+        [
+          {
+            "node": "IG Finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IG Finished?": {
+      "main": [
+        [
+          {
+            "node": "IG Publish",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IG Error?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IG Publish": {
+      "main": [
+        [
+          {
+            "node": "IG Permalink",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IG Permalink": {
+      "main": [
+        [
+          {
+            "node": "Mark Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IG Error?": {
+      "main": [
+        [
+          {
+            "node": "Mark Failed - Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IG Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare FFmpeg Body": {
+      "main": [
+        [
+          {
+            "node": "FFmpeg HD Render",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "15716651-e8fd-49ab-804e-1ef0256875fb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8c7a3300552295fde6ce401e4166927a60126f6a784dd3e88d11a31784c2f831"
+  },
+  "nodeGroups": [],
+  "id": "v8iITFtMYoSMx2ZT",
+  "tags": [
+    {
+      "updatedAt": "2026-07-29T20:59:12.438Z",
+      "createdAt": "2026-07-29T20:59:12.438Z",
+      "id": "0ArTyJvQ2gFk7qU6",
+      "name": "pagetoken"
+    }
+  ]
+}

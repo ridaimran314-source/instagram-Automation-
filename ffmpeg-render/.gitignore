@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+renders/
+smoke_tmp/
+smoke_renders/
+.tmp/
+.env
+*.pyc
+*.mp4
+*.m4a
+*.mp3
