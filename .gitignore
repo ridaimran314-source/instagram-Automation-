@@ -12,6 +12,14 @@ secrets/
 output/
 tmp_frames/
 reference_frames/
+assets/
+videos/
+app/
+tests/
+docker/
+docker-compose.yml
+pyproject.toml
+SETUP.md
 assets/temp/
 ffmpeg-render/renders/
 ffmpeg-render/smoke_tmp/
@@ -26,5 +34,3 @@ ffmpeg-render/_t/
 *.jpg
 *.jpeg
 !.gitkeep
-!assets/logo/.gitkeep
-!videos/**/.gitkeep
